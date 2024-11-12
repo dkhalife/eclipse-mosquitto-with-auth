@@ -20,7 +20,6 @@ int mosquitto_auth_plugin_cleanup(void* userdata, struct mosquitto_opt* auth_opt
     return 0;
 }
 
-
 int mosquitto_auth_unpwd_check(void* userdata, struct mosquitto* client, const char* username, const char* password)
 {
     if (!username || !*username || !password || !*password)
@@ -34,14 +33,12 @@ int mosquitto_auth_unpwd_check(void* userdata, struct mosquitto* client, const c
     return MOSQ_ERR_SUCCESS;
 }
 
-
 int mosquitto_auth_security_init(void* userdata, struct mosquitto_opt* auth_opts, int auth_opt_count, bool reload)
 {
     return MOSQ_ERR_SUCCESS;
 }
 
-int mosquitto_auth_security_cleanup(void* userdata, struct mosquitto_opt* auth_opts, int auth_opt_count,
-                                    bool reload)
+int mosquitto_auth_security_cleanup(void* userdata, struct mosquitto_opt* auth_opts, int auth_opt_count, bool reload)
 {
     return MOSQ_ERR_SUCCESS;
 }
