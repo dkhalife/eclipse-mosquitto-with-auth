@@ -12,6 +12,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: set workdir
+      run: cd src
     - name: make clean
       run: make clean
     - name: make
