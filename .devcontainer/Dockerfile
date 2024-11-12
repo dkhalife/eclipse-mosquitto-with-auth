@@ -5,5 +5,6 @@ RUN apk add --no-cache \
     clang-extra-tools \
     git \
     mariadb-dev \
+    mosquitto-dev \
     sqlite-dev \
 ;
