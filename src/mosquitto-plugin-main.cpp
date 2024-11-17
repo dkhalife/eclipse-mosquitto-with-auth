@@ -1,49 +1,64 @@
+#include "Pugin.h"
+
 #include <mosquitto.h>
 #include <mosquitto_broker.h>
 #include <mosquitto_plugin.h>
 
-int mosquitto_auth_plugin_version(void)
+/**
+ * The broker will attempt to call this function immediately after loading the plugin to check it is a supported plugin
+ * version.
+ * @param supported_version_count The number of items in @param supported_versions
+ * @param supported_versions An array of the supported versions by the host
+ * @return the supported interface version.
+ */
+int mosquitto_plugin_version(int supported_version_count, const int* supported_versions)
 {
-    mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: startup");
-    return MOSQ_PLUGIN_VERSION;
-}
+    mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: startup");
 
-int mosquitto_auth_plugin_init(void** userdata, struct mosquitto_opt* auth_opts, int auth_opt_count)
-{
-    mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: init");
-    return 0;
-}
-
-int mosquitto_auth_plugin_cleanup(void* userdata, struct mosquitto_opt* auth_opts, int auth_opt_count)
-{
-    mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: cleanup");
-    return 0;
-}
-
-int mosquitto_auth_unpwd_check(void* userdata, struct mosquitto* client, const char* username, const char* password)
-{
-    if (!username || !*username || !password || !*password)
+    for (int i=0; i<supported_version_count; ++i)
     {
-        return MOSQ_ERR_AUTH;
+        if (supported_versions[i] == MOSQ_PLUGIN_VERSION)
+        {
+            mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: required broker API version is supported");
+            return MOSQ_PLUGIN_VERSION;
+        }
     }
 
-    mosquitto_log_printf(MOSQ_LOG_DEBUG, "mosquitto_auth_unpwd_check(%s)", (username) ? username : "<nil>");
-    mosquitto_log_printf(MOSQ_LOG_DEBUG, "Pmosquitto_auth_unpwd_check(%s)", (password) ? password : "<nil>");
-
-    return MOSQ_ERR_SUCCESS;
+    mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: required broker API version is not supported");
+    return -1;
 }
 
-int mosquitto_auth_security_init(void* userdata, struct mosquitto_opt* auth_opts, int auth_opt_count, bool reload)
+/**
+ * Called after the plugin has been loaded and `mosquitto_plugin_version` has been called. Used to initialize plugin state
+ * @param identifier This is a pointer to an opaque structure which you must save and use when registering/unregistering callbacks.
+ * @param userdata The pointer set here will be passed to the other plugin functions.
+ * @param options Pointer to an array of struct mosquitto_opt, which provides the plugin options defined in the configuration file.
+ * @param option_count The number of elements in the opts array.
+ * @return This function returns 0 to indicate success
+ */
+int mosquitto_plugin_init(mosquitto_plugin_id_t* identifier, void** userdata, struct mosquitto_opt* options,
+                          int option_count)
 {
-    return MOSQ_ERR_SUCCESS;
+    mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: init");
+
+    *userdata = new Plugin();
+
+    return 0;
 }
 
-int mosquitto_auth_security_cleanup(void* userdata, struct mosquitto_opt* auth_opts, int auth_opt_count, bool reload)
+/**
+ * Called when the broker is shutting down.  This will only ever be called once per plugin.
+ * @param userdata The pointer provided in `mosquitto_plugin_init`.
+ * @param options Pointer to an array of struct mosquitto_opt, which provides the plugin options defined in the configuration file.
+ * @param option_count The number of elements in the opts array.
+ * @return This function returns 0 to indicate success
+ */
+int mosquitto_plugin_cleanup(void* userdata, struct mosquitto_opt* options, int option_count)
 {
-    return MOSQ_ERR_SUCCESS;
-}
+    mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: cleanup");
 
-int mosquitto_auth_acl_check(void* userdata, int access, struct mosquitto* client, const struct mosquitto_acl_msg* msg)
-{
-    return MOSQ_ERR_SUCCESS;
+    Plugin* self = reinterpret_cast<Plugin*>(userdata);
+    delete self;
+
+    return 0;
 }
