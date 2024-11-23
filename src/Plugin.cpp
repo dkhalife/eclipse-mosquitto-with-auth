@@ -45,9 +45,12 @@ void Plugin::initializeBackends() noexcept
         mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: initializing backend: `%s`", kind.c_str());
 
         std::unique_ptr<IBackend> backend = BackendFactory(kind, m_options);
-        if (backend != nullptr)
+        if (backend == nullptr)
         {
-            m_backends.push_back(std::move(backend));
+            mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: unknown backend kind: `%s`", kind.c_str());
+            continue;
         }
+
+        m_backends.push_back(std::move(backend));
     }
 }
