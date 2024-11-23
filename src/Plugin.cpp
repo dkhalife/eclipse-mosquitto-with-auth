@@ -1,10 +1,12 @@
 #include "plugin.h"
 
 #include <algorithm>
+#include <iostream>
 #include <mosquitto.h>
 #include <ranges>
-#include <string>
+#include <sstream>
 #include <string_view>
+#include <string>
 
 constexpr const char* c_backends_opt_key = "backends";
 
@@ -36,12 +38,11 @@ void Plugin::initializeBackends() noexcept
 
     mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: initializing backends: `%s`", value.c_str());
 
-    const std::string& delim = ",";
-    const auto tokens = value 
-                    | std::views::split(delim)
-                    | std::ranges::to<std::vector<std::string_view>>();
-    for (const auto& kind: tokens) {
-        mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: initializing backend: `%s`", kind);
+    std::string kind;
+    std::stringstream ss(value);
+    while (std::getline(ss, kind, ','))
+    {
+        mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: initializing backend: `%s`", kind.c_str());
 
         std::unique_ptr<IBackend> backend = BackendFactory(kind, m_options);
         if (backend != nullptr)
