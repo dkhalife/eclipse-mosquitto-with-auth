@@ -54,3 +54,16 @@ void Plugin::initializeBackends() noexcept
         m_backends.push_back(std::move(backend));
     }
 }
+
+int Plugin::onBasicAuth(const std::string& username, const std::string& password) noexcept
+{
+    for (auto& backend: m_backends)
+    {
+        if (backend->Authenticate(username, password))
+        {
+            return MOSQ_ERR_SUCCESS;
+        }
+    }
+
+    return MOSQ_ERR_AUTH;
+}

@@ -11,6 +11,8 @@ public:
     Plugin(mosquitto_plugin_id_t* identifier, std::vector<mosquitto_opt> options);
     ~Plugin();
 
+    int onBasicAuth(const std::string& username, const std::string& password) noexcept;
+
 private:
     void initializeBackends() noexcept;
 

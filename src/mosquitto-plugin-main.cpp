@@ -16,7 +16,7 @@ int mosquitto_plugin_version(int supported_version_count, const int* supported_v
 {
     mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: startup");
 
-    for (int i=0; i<supported_version_count; ++i)
+    for (int i = 0; i < supported_version_count; ++i)
     {
         if (supported_versions[i] == MOSQ_PLUGIN_VERSION)
         {
@@ -30,10 +30,13 @@ int mosquitto_plugin_version(int supported_version_count, const int* supported_v
 }
 
 /**
- * Called after the plugin has been loaded and `mosquitto_plugin_version` has been called. Used to initialize plugin state
- * @param identifier This is a pointer to an opaque structure which you must save and use when registering/unregistering callbacks.
+ * Called after the plugin has been loaded and `mosquitto_plugin_version` has been called. Used to initialize plugin
+ * state
+ * @param identifier This is a pointer to an opaque structure which you must save and use when registering/unregistering
+ * callbacks.
  * @param userdata The pointer set here will be passed to the other plugin functions.
- * @param options Pointer to an array of struct mosquitto_opt, which provides the plugin options defined in the configuration file.
+ * @param options Pointer to an array of struct mosquitto_opt, which provides the plugin options defined in the
+ * configuration file.
  * @param option_count The number of elements in the opts array.
  * @return This function returns 0 to indicate success
  */
@@ -44,7 +47,7 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t* identifier, void** userdata, st
 
     std::vector<mosquitto_opt> opts;
     opts.reserve(option_count);
-    for (int i=0; i<option_count; ++i)
+    for (int i = 0; i < option_count; ++i)
     {
         opts.push_back(options[i]);
     }
@@ -57,7 +60,8 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t* identifier, void** userdata, st
 /**
  * Called when the broker is shutting down.  This will only ever be called once per plugin.
  * @param userdata The pointer provided in `mosquitto_plugin_init`.
- * @param options Pointer to an array of struct mosquitto_opt, which provides the plugin options defined in the configuration file.
+ * @param options Pointer to an array of struct mosquitto_opt, which provides the plugin options defined in the
+ * configuration file.
  * @param option_count The number of elements in the opts array.
  * @return This function returns 0 to indicate success
  */
@@ -69,4 +73,18 @@ int mosquitto_plugin_cleanup(void* userdata, struct mosquitto_opt* options, int 
     delete self;
 
     return 0;
+}
+
+/**
+ * Called when the broker is trying to validate basic authentication.
+ * @param user_data The pointer provided in `mosquitto_plugin_init`.
+ * @param client The broker instance that is attempting to authenticate a client.
+ * @param username The client's username
+ * @param password The client's password
+ * @return This function returns MOSQ_ERR_SUCCESS or MOSQ_ERR_AUTH for successful/failed authentication.
+ */
+int mosquitto_auth_unpwd_check(void* user_data, struct mosquitto* client, const char* username, const char* password)
+{
+    Plugin* self = reinterpret_cast<Plugin*>(user_data);
+    return self->onBasicAuth(username, password);
 }
