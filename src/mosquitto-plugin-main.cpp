@@ -74,17 +74,3 @@ int mosquitto_plugin_cleanup(void* userdata, struct mosquitto_opt* options, int 
 
     return 0;
 }
-
-/**
- * Called when the broker is trying to validate basic authentication.
- * @param user_data The pointer provided in `mosquitto_plugin_init`.
- * @param client The broker instance that is attempting to authenticate a client.
- * @param username The client's username
- * @param password The client's password
- * @return This function returns MOSQ_ERR_SUCCESS or MOSQ_ERR_AUTH for successful/failed authentication.
- */
-int mosquitto_auth_unpwd_check(void* user_data, struct mosquitto* client, const char* username, const char* password)
-{
-    Plugin* self = reinterpret_cast<Plugin*>(user_data);
-    return self->onBasicAuth(username, password);
-}

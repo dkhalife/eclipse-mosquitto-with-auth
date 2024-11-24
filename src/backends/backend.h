@@ -17,7 +17,7 @@ public:
      * Verifies a client credentials against its own store
      * @return True if the client should be granted access by the broker
      */
-    virtual bool Authenticate(const std::string& username, const std::string& password) = 0;
+    virtual bool authenticate(const std::string& username, const std::string& password) = 0;
 };
 
 /**

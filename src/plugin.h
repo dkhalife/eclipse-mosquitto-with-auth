@@ -29,9 +29,12 @@ public:
      * given a username and password combination. As long as one backend accepts the credentials, the
      * authentication is considered successful. The backends are assigned priority based on the order they
      * are listed in the configuration file. The first one listed is the first responder, and so on.
+     * @param event_data The raw data packet sent from the broker
      * @return MOSQ_ERR_SUCCESS for successful combination, MOSQ_ERR_AUTH otherwise
      */
-    int onBasicAuth(const std::string& username, const std::string& password) noexcept;
+    int onBasicAuth(const mosquitto_evt_basic_auth& event_data) noexcept;
+
+    static int onEvent(int event_id, void* event_data, void* user_data) noexcept;
 
 private:
     /**
@@ -39,6 +42,8 @@ private:
      * listed is the first responder, and so on.
      */
     void initializeBackends() noexcept;
+    void registerEvents() noexcept;
+    void unregisterEvents() noexcept;
 
     std::vector<mosquitto_opt> m_options;
     mosquitto_plugin_id_t* m_identifier;

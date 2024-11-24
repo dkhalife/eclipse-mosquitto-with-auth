@@ -19,7 +19,7 @@ public:
      * Verifies a client credentials against the SQLite store
      * @return True if the client should be granted access by the broker
      */
-    bool Authenticate(const std::string& username, const std::string& password);
+    bool authenticate(const std::string& username, const std::string& password);
 
     /**
      * Identifier to use in the broker configuration to connect to a SQLite database
