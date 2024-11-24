@@ -2,7 +2,7 @@
 
 #include <mosquitto.h>
 
-BE_File::BE_File(const std::vector<mosquitto_opt>& options)
+BE_File::BE_File(const std::map<const char*, const char*, KeysEqual>& options)
 {
     mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: backend %s initializing", BE_File::kind);
 }

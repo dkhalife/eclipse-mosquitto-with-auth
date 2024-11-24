@@ -13,7 +13,7 @@ public:
      * Constructs the backend state and connects to the MySQL service given
      * @param options The relevant `mosquitto_opt` from the broker's config file
      */
-    BE_Mysql(const std::vector<mosquitto_opt>& options);
+    BE_Mysql(const std::map<const char*, const char*, KeysEqual>& options);
 
     /**
      * Verifies a client credentials against the MySQL store

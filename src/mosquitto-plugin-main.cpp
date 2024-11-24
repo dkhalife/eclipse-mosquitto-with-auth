@@ -1,9 +1,9 @@
 #include "plugin.h"
 
+#include <map>
 #include <mosquitto.h>
 #include <mosquitto_broker.h>
 #include <mosquitto_plugin.h>
-#include <vector>
 
 /**
  * The broker will attempt to call this function immediately after loading the plugin to check it is a supported plugin
@@ -45,11 +45,12 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t* identifier, void** userdata, st
 {
     mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: init");
 
-    std::vector<mosquitto_opt> opts;
-    opts.reserve(option_count);
+    std::map<const char*, const char*, KeysEqual> opts;
     for (int i = 0; i < option_count; ++i)
     {
-        opts.push_back(options[i]);
+        const char* key = options[i].key;
+        const char* value = options[i].value;
+        opts[key] = value;
     }
 
     *userdata = new Plugin(identifier, std::move(opts));

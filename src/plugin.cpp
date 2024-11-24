@@ -10,7 +10,7 @@
 
 constexpr const char* c_backends_opt_key = "backends";
 
-Plugin::Plugin(mosquitto_plugin_id_t* identifier, std::vector<mosquitto_opt> options)
+Plugin::Plugin(mosquitto_plugin_id_t* identifier, std::map<const char*, const char*, KeysEqual> options)
     : m_identifier(identifier)
     , m_options(std::move(options))
 {
@@ -25,20 +25,14 @@ Plugin::~Plugin()
 
 void Plugin::initializeBackends() noexcept
 {
-    auto backends_opt = std::find_if(m_options.begin(), m_options.end(), [](const mosquitto_opt& opt) noexcept
-    {
-        return std::string(c_backends_opt_key).compare(opt.key) == 0;
-    });
-
-    if (backends_opt == m_options.end())
+    if (m_options.count(c_backends_opt_key) == 0)
     {
         mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: required `%s` config is missing", c_backends_opt_key);
         return;
     }
 
-    const std::string& value = backends_opt->value;
-
-    mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: initializing backends: `%s`", value.c_str());
+    const char* value = m_options[c_backends_opt_key];
+    mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: initializing backends: `%s`", value);
 
     std::string kind;
     std::stringstream ss(value);
@@ -53,8 +47,11 @@ void Plugin::initializeBackends() noexcept
             continue;
         }
 
+        mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: moving ownership");
         m_backends.push_back(std::move(backend));
     }
+
+    mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: done initializing backends");
 }
 
 void Plugin::registerEvents() noexcept

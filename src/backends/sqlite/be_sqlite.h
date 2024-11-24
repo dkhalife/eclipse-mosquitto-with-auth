@@ -13,7 +13,7 @@ public:
      * one if necessary.
      * @param options The relevant `mosquitto_opt` from the broker's config file
      */
-    BE_Sqlite(const std::vector<mosquitto_opt>& options);
+    BE_Sqlite(const std::map<const char*, const char*, KeysEqual>& options);
 
     /**
      * Verifies a client credentials against the SQLite store

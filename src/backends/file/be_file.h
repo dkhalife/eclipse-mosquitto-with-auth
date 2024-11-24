@@ -13,7 +13,7 @@ public:
      * Constructs the backend state and reads the backing file into memory.
      * @param options The relevant `mosquitto_opt` from the broker's config file
      */
-    BE_File(const std::vector<mosquitto_opt>& options);
+    BE_File(const std::map<const char*, const char*, KeysEqual>& options);
 
     /**
      * Verifies a client credentials against the list of valid in-memory ones
