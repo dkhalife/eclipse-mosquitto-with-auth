@@ -2,7 +2,7 @@
 
 #include <mosquitto.h>
 
-BE_Sqlite::BE_Sqlite(const std::map<const char*, const char*, KeysEqual>& options)
+BE_Sqlite::BE_Sqlite(const std::map<std::string, std::string>& options)
 {
     mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: backend %s initializing", BE_Sqlite::kind);
 }

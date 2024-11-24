@@ -1,7 +1,6 @@
 #pragma once
 
 #include "backends/backend.h"
-#include "keysEquals.h"
 
 #include <map>
 #include <mosquitto_plugin.h>
@@ -20,7 +19,7 @@ public:
      * @param identifier Serves as a unique id for this plugin when interacting with the broker
      * @param options Holds the list of directives of type `mosquitto_opt` from the broker's configuration file
      */
-    Plugin(mosquitto_plugin_id_t* identifier, std::map<const char*, const char*, KeysEqual> options);
+    Plugin(mosquitto_plugin_id_t* identifier, std::map<std::string, std::string> options);
     /**
      * Cleans up any global state
      */
@@ -47,7 +46,7 @@ private:
     void registerEvents() noexcept;
     void unregisterEvents() noexcept;
 
-    std::map<const char*, const char*, KeysEqual> m_options;
+    std::map<std::string, std::string> m_options;
     mosquitto_plugin_id_t* m_identifier;
 
     std::vector<std::unique_ptr<IBackend>> m_backends;

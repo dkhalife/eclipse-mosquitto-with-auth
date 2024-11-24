@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../keysEquals.h"
-
 #include <map>
 #include <memory>
 #include <mosquitto_plugin.h>
@@ -27,4 +25,4 @@ public:
  * @param kind The kind of backend to construct
  * @return A pointer to a backend of the requested `kind`, `nullptr` if the backend kind is not supported
  */
-std::unique_ptr<IBackend> BackendFactory(std::string_view kind, const std::map<const char*, const char*, KeysEqual>& options);
+std::unique_ptr<IBackend> BackendFactory(std::string_view kind, const std::map<std::string, std::string>& options);

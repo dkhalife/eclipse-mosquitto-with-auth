@@ -5,7 +5,7 @@
 
 #include <mosquitto.h>
 
-std::unique_ptr<IBackend> BackendFactory(std::string_view kind, const std::map<const char*, const char*, KeysEqual>& options)
+std::unique_ptr<IBackend> BackendFactory(std::string_view kind, const std::map<std::string, std::string>& options)
 {
     if (kind == BE_File::kind) {
         return std::make_unique<BE_File>(options);

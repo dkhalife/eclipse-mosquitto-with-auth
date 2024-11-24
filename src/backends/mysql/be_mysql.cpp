@@ -2,7 +2,7 @@
 
 #include <mosquitto.h>
 
-BE_Mysql::BE_Mysql(const std::map<const char*, const char*, KeysEqual>& options)
+BE_Mysql::BE_Mysql(const std::map<std::string, std::string>& options)
 {
     mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: backend %s initializing", BE_Mysql::kind);
 }

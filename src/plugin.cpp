@@ -8,7 +8,7 @@
 
 constexpr const char* c_backends_opt_key = "backends";
 
-Plugin::Plugin(mosquitto_plugin_id_t* identifier, std::map<const char*, const char*, KeysEqual> options)
+Plugin::Plugin(mosquitto_plugin_id_t* identifier, std::map<std::string, std::string> options)
     : m_identifier(identifier)
     , m_options(std::move(options))
 {
@@ -29,8 +29,8 @@ void Plugin::initializeBackends() noexcept
         return;
     }
 
-    const char* value = m_options[c_backends_opt_key];
-    mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: initializing backends: `%s`", value);
+    const std::string& value = m_options[c_backends_opt_key];
+    mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: initializing backends: `%s`", value.c_str());
 
     std::string kind;
     std::stringstream ss(value);

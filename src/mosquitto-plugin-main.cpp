@@ -45,7 +45,7 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t* identifier, void** userdata, st
 {
     mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: init");
 
-    std::map<const char*, const char*, KeysEqual> opts;
+    std::map<std::string, std::string> opts;
     for (int i = 0; i < option_count; ++i)
     {
         const char* key = options[i].key;
