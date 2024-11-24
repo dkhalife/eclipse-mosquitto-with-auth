@@ -15,7 +15,6 @@ jobs:
     - name: Pre-build image and run build in dev container
       uses: devcontainers/ci@v0.3
       with:
-        configFile: ../.devcontainer/devcontainer.json
         imageName: ghcr.io/dkhalife/eclipse-mosquitto-with-auth
         cacheFrom: ghcr.io/dkhalife/eclipse-mosquitto-with-auth
         push: always
