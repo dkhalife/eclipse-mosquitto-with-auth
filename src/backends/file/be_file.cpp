@@ -33,20 +33,21 @@ void BE_File::loadFile(const std::string& filePath)
     mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: loading credentials from `%s`", filePath.c_str());
 
     auto file = std::ifstream(filePath);
-    std::string line, username, password;
+    std::string line;
     int lineNb = 1;
     while (getline(file, line))
     {
-        std::stringstream lineStream(line);
+        int iSep = line.find_first_of(':');
+        if (iSep == std::string::npos)
+        {
+            mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: line %i is malformed, skipping it", lineNb);
+            continue;
+        }
 
-        if (getline(lineStream, username, ':') && getline(lineStream, password))
-        {
-            m_credentials.emplace_back(make_pair(username, password));
-        }
-        else
-        {
-            mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: line %i is malformed, skipping it", lineNb);
-        }
+        std::string username = line.substr(0, iSep);
+        size_t remaining = line.size() - username.size() - 2U;
+        std::string password = line.substr(iSep + 1, remaining);
+        m_credentials.emplace_back(make_pair(std::move(username), std::move(password)));
 
         ++lineNb;
     }
