@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../backend.h"
+#include "../../utils/sha256.h"
 
 #include <vector>
 
@@ -38,4 +39,6 @@ private:
 
     using Credentials = std::pair<std::string, std::string>;
     std::vector<Credentials> m_credentials;
+
+    SHA256 m_hasher;
 };

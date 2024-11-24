@@ -37,7 +37,7 @@ void BE_File::loadFile(const std::string& filePath)
     int lineNb = 1;
     while (getline(file, line))
     {
-        int iSep = line.find_first_of(':');
+        int iSep = line.find_last_of("::");
         if (iSep == std::string::npos)
         {
             mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: line %i is malformed, skipping it", lineNb);
@@ -55,9 +55,10 @@ void BE_File::loadFile(const std::string& filePath)
 
 bool BE_File::authenticate(const std::string& username, const std::string& password)
 {
+    std::string input_hash = m_hasher(password);
     for (const auto& item: m_credentials)
     {
-        if (item.first == username && item.second == password)
+        if (item.first == username && item.second == input_hash)
         {
             return true;
         }
