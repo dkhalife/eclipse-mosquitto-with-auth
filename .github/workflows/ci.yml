@@ -9,12 +9,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    permissions:
+      packages: write
     steps:
     - uses: actions/checkout@v4
-    - name: make clean
-      working-directory: ./src
-      run: make clean
-    - name: make
-      working-directory: ./src
-      run: make
+    - name: Login to registry
+      run: |
+        docker login --username dkhalife --password ${{ secrets.GH_PAT }} ghcr.io
+    - name: Pre-build image and run build in dev container
+      uses: devcontainers/ci@v0.3
+      with:
+        imageName: ghcr.io/dkhalife/eclipse-mosquitto-with-auth
+        cacheFrom: ghcr.io/dkhalife/eclipse-mosquitto-with-auth
+        push: always
+        runCmd: |
+          cd src
+          make clean
+          make
