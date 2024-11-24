@@ -44,8 +44,8 @@ void BE_File::loadFile(const std::string& filePath)
             continue;
         }
 
-        std::string username = line.substr(0, iSep);
-        size_t remaining = line.size() - username.size() - 2U;
+        std::string username = line.substr(0, iSep - 1); // -1 brings us back to the beginning of the separator
+        size_t remaining = line.size() - username.size() - 3U; // 2 chars for the separator and 1 for end of line
         std::string password = line.substr(iSep + 1, remaining);
         m_credentials.emplace_back(make_pair(std::move(username), std::move(password)));
 
@@ -55,7 +55,8 @@ void BE_File::loadFile(const std::string& filePath)
 
 bool BE_File::authenticate(const std::string& username, const std::string& password)
 {
-    std::string input_hash = m_hasher(password);
+    SHA256 hasher;
+    std::string input_hash = hasher(password);
     for (const auto& item: m_credentials)
     {
         if (item.first == username && item.second == input_hash)

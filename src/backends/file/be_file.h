@@ -39,6 +39,4 @@ private:
 
     using Credentials = std::pair<std::string, std::string>;
     std::vector<Credentials> m_credentials;
-
-    SHA256 m_hasher;
 };
