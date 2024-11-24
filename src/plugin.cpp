@@ -3,9 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include <mosquitto.h>
-#include <ranges>
 #include <sstream>
-#include <string_view>
 #include <string>
 
 constexpr const char* c_backends_opt_key = "backends";
@@ -47,7 +45,6 @@ void Plugin::initializeBackends() noexcept
             continue;
         }
 
-        mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: moving ownership");
         m_backends.push_back(std::move(backend));
     }
 
