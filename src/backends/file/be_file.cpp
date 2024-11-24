@@ -1,5 +1,6 @@
 #include "be_file.h"
 
+#include <filesystem>
 #include <fstream>
 #include <mosquitto.h>
 #include <sstream>
@@ -23,15 +24,15 @@ BE_File::BE_File(const std::map<std::string, std::string>& options)
 
 void BE_File::loadFile(const std::string& filePath)
 {
+    if (!std::filesystem::exists(filePath))
+    {
+        mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: file not found: `%s`", filePath.c_str());
+        return;
+    }
+
     mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: loading credentials from `%s`", filePath.c_str());
 
     auto file = std::ifstream(filePath);
-    if (file.eof())
-    {
-        mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: file not found: `%s`", filePath.c_str());
-        return;;
-    }
-
     std::string line, username, password;
     int lineNb = 1;
     while (getline(file, line))
