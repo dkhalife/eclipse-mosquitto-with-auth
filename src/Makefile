@@ -2,6 +2,7 @@ CC = /usr/bin/clang
 CXX = /usr/bin/clang++
 
 CXXFLAGS = -fPIC --std=c++23
+LDFLAGS = -static-libgcc -static-libstdc++
 
 OBJS = \
 	./backends/backend.o \

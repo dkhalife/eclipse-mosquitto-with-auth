@@ -51,10 +51,14 @@ void BE_File::loadFile(const std::string& filePath)
 
         ++lineNb;
     }
+
+    mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: loaded %i credentials from `%s`", m_credentials.size(), filePath.c_str());
 }
 
 bool BE_File::authenticate(const std::string& username, const std::string& password)
 {
+    mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: login `%s` = `%s`", username.c_str(), password.c_str());
+
     SHA256 hasher;
     std::string input_hash = hasher(password);
     for (const auto& item: m_credentials)
