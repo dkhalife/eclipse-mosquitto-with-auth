@@ -25,4 +25,12 @@ public:
      * Identifier to use in the broker configuration to connect to an Http backend
      */
     static constexpr const char* kind = "http";
+
+private:
+    void setupBaseUri(const std::map<std::string, std::string>& options) noexcept;
+    void setupSubpaths(const std::map<std::string, std::string>& options) noexcept;
+
+    std::string m_base_uri;
+    std::string m_auth_path = "/auth";
+    std::string m_acl_path = "/acl";
 };
