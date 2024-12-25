@@ -20,9 +20,12 @@ public:
 
     /**
      * Verifies a client credentials against the list of valid in-memory ones
+     * @param username The username the client passed
+     * @param password The password the client passed
+     * @param client_id The id associated with the mosquitto client making the connection
      * @return True if the client should be granted access by the broker
      */
-    bool authenticate(const std::string& username, const std::string& password);
+    bool authenticate(const std::string& username, const std::string& password, const std::string& client_id);
 
     /**
      * Identifier to use in the broker configuration to use a file-backed list

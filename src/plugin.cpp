@@ -96,7 +96,8 @@ int Plugin::onBasicAuth(const mosquitto_evt_basic_auth& event_data) noexcept
 {
     for (auto& backend: m_backends)
     {
-        if (backend->authenticate(event_data.username, event_data.password))
+        const char* client_id = mosquitto_client_id(event_data.client);
+        if (backend->authenticate(event_data.username, event_data.password, client_id))
         {
             return MOSQ_ERR_SUCCESS;
         }

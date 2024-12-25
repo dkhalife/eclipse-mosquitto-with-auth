@@ -65,7 +65,7 @@ void BE_Http::setupSubpaths(const std::map<std::string, std::string>& options) n
     }
 }
 
-bool BE_Http::authenticate(const std::string& username, const std::string& password)
+bool BE_Http::authenticate(const std::string& username, const std::string& password, const std::string& client_id)
 {
     return false;
 }

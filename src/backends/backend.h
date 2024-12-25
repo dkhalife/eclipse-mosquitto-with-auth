@@ -15,9 +15,12 @@ public:
 
     /**
      * Verifies a client credentials against its own store
+     * @param username The username the client passed
+     * @param password The password the client passed
+     * @param client_id The id associated with the mosquitto client making the connection
      * @return True if the client should be granted access by the broker
      */
-    virtual bool authenticate(const std::string& username, const std::string& password) = 0;
+    virtual bool authenticate(const std::string& username, const std::string& password, const std::string& client_id) = 0;
 };
 
 /**
