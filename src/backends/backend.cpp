@@ -1,6 +1,7 @@
 #include "backend.h"
-#include "mysql/be_mysql.h"
 #include "file/be_file.h"
+#include "http/be_http.h"
+#include "mysql/be_mysql.h"
 #include "sqlite/be_sqlite.h"
 
 #include <mosquitto.h>
@@ -9,6 +10,10 @@ std::unique_ptr<IBackend> BackendFactory(std::string_view kind, const std::map<s
 {
     if (kind == BE_File::kind) {
         return std::make_unique<BE_File>(options);
+    }
+
+    if (kind == BE_Http::kind) {
+        return std::make_unique<BE_Http>(options);
     }
 
     if (kind == BE_Mysql::kind) {
