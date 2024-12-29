@@ -25,6 +25,13 @@ public:
     bool authenticate(const std::string& username, const std::string& password, const std::string& client_id);
 
     /**
+     * Reinitializes the backend based on the new configuration options
+     * @param options The new configuration options
+     * @return True if the reload was successful
+     */
+    bool reload(const std::map<std::string, std::string>& options);
+
+    /**
      * Identifier to use in the broker configuration to connect to a MySQL service
      */
     static constexpr const char* kind = "mysql";

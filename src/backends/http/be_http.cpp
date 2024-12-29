@@ -128,3 +128,11 @@ bool BE_Http::authenticate(const std::string& username, const std::string& passw
 
     return false;
 }
+
+bool BE_Http::reload(const std::map<std::string, std::string>& options)
+{
+    setupBaseUri(options);
+    setupSubpaths(options);
+
+    return true;
+}

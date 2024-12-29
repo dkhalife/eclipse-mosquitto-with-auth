@@ -69,3 +69,18 @@ bool BE_File::authenticate(const std::string& username, const std::string& passw
 
     return false;
 }
+
+bool BE_File::reload(const std::map<std::string, std::string>& options)
+{
+    if (options.count(c_file_opt_key) == 0)
+    {
+        mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: required config `%s` is missing", c_file_opt_key);
+        return false;
+    }
+
+    const std::string& credentialsFilePath = options.at(c_file_opt_key);
+    m_credentials.clear();
+    loadFile(credentialsFilePath);
+
+    return true;
+}

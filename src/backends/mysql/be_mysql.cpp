@@ -11,3 +11,8 @@ bool BE_Mysql::authenticate(const std::string& username, const std::string& pass
 {
     return false;
 }
+
+bool BE_Mysql::reload(const std::map<std::string, std::string>& options)
+{
+    return true;
+}

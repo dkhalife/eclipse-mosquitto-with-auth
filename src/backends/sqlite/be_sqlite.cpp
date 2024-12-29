@@ -11,3 +11,8 @@ bool BE_Sqlite::authenticate(const std::string& username, const std::string& pas
 {
     return false;
 }
+
+bool BE_Sqlite::reload(const std::map<std::string, std::string>& options)
+{
+    return true;
+}
