@@ -3,6 +3,7 @@
 #include "../backend.h"
 #include "../../utils/sha256.h"
 
+#include <optional>
 #include <vector>
 
 /**
@@ -44,8 +45,9 @@ private:
     /**
      * Loads the given path and stores valid credentials listed in it, in memory
      * @param filePath The path to the file containing the credentials
+     * @return A vector of valid credentials, if the file was loaded successfully
      */
-    void loadFile(const std::string& filePath);
+    std::optional<std::vector<std::pair<std::string, std::string>>> loadFile(const std::string& filePath);
 
     using Credentials = std::pair<std::string, std::string>;
     std::vector<Credentials> m_credentials;

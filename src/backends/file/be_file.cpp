@@ -19,15 +19,21 @@ BE_File::BE_File(const std::map<std::string, std::string>& options)
     }
 
     const std::string& credentialsFilePath = options.at(c_file_opt_key);
-    loadFile(credentialsFilePath);
+    auto credentials = loadFile(credentialsFilePath);
+    if (credentials.has_value())
+    {
+        m_credentials = std::move(credentials.value());
+    }
 }
 
-void BE_File::loadFile(const std::string& filePath)
+std::optional<std::vector<std::pair<std::string, std::string>>> BE_File::loadFile(const std::string& filePath)
 {
+    std::vector<std::pair<std::string, std::string>> credentials;
+
     if (!std::filesystem::exists(filePath))
     {
         mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: file not found: `%s`", filePath.c_str());
-        return;
+        return std::nullopt;
     }
 
     mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: loading credentials from `%s`", filePath.c_str());
@@ -40,19 +46,21 @@ void BE_File::loadFile(const std::string& filePath)
         int iSep = line.find_last_of("::");
         if (iSep == std::string::npos)
         {
-            mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: line %i is malformed, skipping it", lineNb);
+            mosquitto_log_printf(MOSQ_LOG_WARNING, "*** auth-plugin: line %i is malformed, skipping it", lineNb);
             continue;
         }
 
         std::string username = line.substr(0, iSep - 1); // -1 brings us back to the beginning of the separator
         size_t remaining = line.size() - username.size() - 3U; // 2 chars for the separator and 1 for end of line
         std::string password = line.substr(iSep + 1, remaining);
-        m_credentials.emplace_back(make_pair(std::move(username), std::move(password)));
+        credentials.emplace_back(make_pair(std::move(username), std::move(password)));
 
         ++lineNb;
     }
 
-    mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: loaded %i credentials from `%s`", m_credentials.size(), filePath.c_str());
+    mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: loaded %i credentials from `%s`", credentials.size(), filePath.c_str());
+
+    return credentials;
 }
 
 bool BE_File::authenticate(const std::string& username, const std::string& password, const std::string& /*client_id*/)
@@ -79,8 +87,13 @@ bool BE_File::reload(const std::map<std::string, std::string>& options)
     }
 
     const std::string& credentialsFilePath = options.at(c_file_opt_key);
-    m_credentials.clear();
-    loadFile(credentialsFilePath);
+    auto credentials = loadFile(credentialsFilePath);
 
-    return true;
+    if (credentials.has_value())
+    {
+        m_credentials = std::move(credentials.value());
+        return true;
+    }
+
+    return false;
 }
