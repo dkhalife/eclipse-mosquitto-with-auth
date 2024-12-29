@@ -92,3 +92,8 @@ bool BE_File::reload(const std::map<std::string, std::string>& options)
 {
     return initialize(options);
 }
+
+bool BE_File::checkAcl(const std::string& /*client_id*/, const std::string& /*topic*/, int /*access*/)
+{
+    return false;
+}

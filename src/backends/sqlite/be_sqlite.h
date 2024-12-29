@@ -32,6 +32,15 @@ public:
     bool reload(const std::map<std::string, std::string>& options);
 
     /**
+     * Checks if a client has access to a topic
+     * @param client_id The id associated with the mosquitto client making the connection
+     * @param topic The topic the client is trying to access
+     * @param access The access level requested
+     * @return True if the client should be granted access by the broker
+     */
+    bool checkAcl(const std::string& client_id, const std::string& topic, int access);
+
+    /**
      * Identifier to use in the broker configuration to connect to a SQLite database
      */
     static constexpr const char* kind = "sqlite";

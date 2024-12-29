@@ -66,6 +66,12 @@ void Plugin::registerEvents() noexcept
     {
         mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: unable to register for basic auth events, hr = %s", hr);
     }
+
+    hr = mosquitto_callback_register(m_identifier, MOSQ_EVT_ACL_CHECK, Plugin::onEvent, nullptr, this);
+    if (hr != MOSQ_ERR_SUCCESS)
+    {
+        mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: unable to register for ACL check events, hr = %s", hr);
+    }
 }
 
 void Plugin::unregisterEvents() noexcept
@@ -83,13 +89,19 @@ void Plugin::unregisterEvents() noexcept
     {
         mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: unable to unregister basic auth callback");
     }
+
+    hr = mosquitto_callback_unregister(m_identifier, MOSQ_EVT_ACL_CHECK, Plugin::onEvent, nullptr);
+    if (hr != MOSQ_ERR_SUCCESS)
+    {
+        mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: unable to unregister ACL check callback");
+    }
 }
 
 int Plugin::onEvent(int event_id, void* event_data, void* user_data) noexcept
 {
     Plugin* self = reinterpret_cast<Plugin*>(user_data);
 
-    if (event_id == MOSQ_EVT_BASIC_AUTH)
+    if (event_id == MOSQ_EVT_RELOAD)
     {
         mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: received a reload event");
         mosquitto_evt_reload* ed = reinterpret_cast<mosquitto_evt_reload*>(event_data);
@@ -98,8 +110,14 @@ int Plugin::onEvent(int event_id, void* event_data, void* user_data) noexcept
     else if (event_id == MOSQ_EVT_BASIC_AUTH)
     {
         mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: received a basic auth event");
-	    mosquitto_evt_basic_auth* ed = reinterpret_cast<mosquitto_evt_basic_auth*>(event_data);
+        mosquitto_evt_basic_auth* ed = reinterpret_cast<mosquitto_evt_basic_auth*>(event_data);
         return self->onBasicAuth(*ed);
+    }
+    else if (event_id == MOSQ_EVT_ACL_CHECK)
+    {
+        mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: received an ACL check event");
+        mosquitto_evt_acl_check* ed = reinterpret_cast<mosquitto_evt_acl_check*>(event_data);
+        return self->onAclCheck(*ed);
     }
     else
     {
@@ -108,6 +126,20 @@ int Plugin::onEvent(int event_id, void* event_data, void* user_data) noexcept
     }
 
     return MOSQ_ERR_SUCCESS;
+}
+
+int Plugin::onAclCheck(const mosquitto_evt_acl_check& event_data) noexcept
+{
+    for (auto& backend: m_backends)
+    {
+        std::string client_id = mosquitto_client_id(event_data.client);
+        if (backend->checkAcl(client_id, event_data.topic, event_data.access))
+        {
+            return MOSQ_ERR_SUCCESS;
+        }
+    }
+
+    return MOSQ_ERR_ACL_DENIED;
 }
 
 int Plugin::onBasicAuth(const mosquitto_evt_basic_auth& event_data) noexcept

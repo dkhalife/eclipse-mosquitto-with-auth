@@ -28,6 +28,15 @@ public:
      * @return True if the reload was successful
      */
     virtual bool reload(const std::map<std::string, std::string>& options) = 0;
+
+    /**
+     * Checks if a client has access to a topic
+     * @param client_id The id associated with the mosquitto client making the connection
+     * @param topic The topic the client is trying to access
+     * @param access The access level requested
+     * @return True if the client should be granted access by the broker
+     */
+    virtual bool checkAcl(const std::string& client_id, const std::string& topic, int access) = 0;
 };
 
 /**

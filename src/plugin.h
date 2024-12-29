@@ -43,6 +43,13 @@ public:
     int onReload(const mosquitto_evt_reload& event_data) noexcept;
 
     /**
+     * Handles the ACL check event by allowing each registered backend to check if a client has access to a
+     * @param event_data The raw data packet sent from the broker
+     * @return MOSQ_ERR_SUCCESS for successful access, MOSQ_ERR_ACL_DENIED otherwise
+     */
+    int onAclCheck(const mosquitto_evt_acl_check& event_data) noexcept;
+
+    /**
      * Handles the broker events by dispatching them to the appropriate event handler
      * @param event_id The event id
      * @param event_data The raw data packet sent from the broker
