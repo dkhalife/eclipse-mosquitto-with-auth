@@ -21,6 +21,13 @@ public:
      * @return True if the client should be granted access by the broker
      */
     virtual bool authenticate(const std::string& username, const std::string& password, const std::string& client_id) = 0;
+
+    /**
+     * Reloads the backend configuration
+     * @param options The new configuration options
+     * @return True if the reload was successful
+     */
+    virtual bool reload(const std::map<std::string, std::string>& options) = 0;
 };
 
 /**
