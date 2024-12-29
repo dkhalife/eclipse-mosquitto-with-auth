@@ -11,11 +11,18 @@ constexpr const char* c_file_opt_key = "creds_file";
 BE_File::BE_File(const std::map<std::string, std::string>& options)
 {
     mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: backend %s initializing", BE_File::kind);
+    if (!initialize(options))
+    {
+        mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: initialization failed");
+    }
+}
 
+bool BE_File::initialize(const std::map<std::string, std::string>& options)
+{
     if (options.count(c_file_opt_key) == 0)
     {
         mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: required config `%s` is missing", c_file_opt_key);
-        return;
+        return false;
     }
 
     const std::string& credentialsFilePath = options.at(c_file_opt_key);
@@ -23,7 +30,10 @@ BE_File::BE_File(const std::map<std::string, std::string>& options)
     if (credentials.has_value())
     {
         m_credentials = std::move(credentials.value());
+        return true;
     }
+
+    return false;
 }
 
 std::optional<std::vector<std::pair<std::string, std::string>>> BE_File::loadFile(const std::string& filePath)
@@ -80,20 +90,5 @@ bool BE_File::authenticate(const std::string& username, const std::string& passw
 
 bool BE_File::reload(const std::map<std::string, std::string>& options)
 {
-    if (options.count(c_file_opt_key) == 0)
-    {
-        mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: required config `%s` is missing", c_file_opt_key);
-        return false;
-    }
-
-    const std::string& credentialsFilePath = options.at(c_file_opt_key);
-    auto credentials = loadFile(credentialsFilePath);
-
-    if (credentials.has_value())
-    {
-        m_credentials = std::move(credentials.value());
-        return true;
-    }
-
-    return false;
+    return initialize(options);
 }

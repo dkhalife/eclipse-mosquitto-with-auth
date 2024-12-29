@@ -43,6 +43,11 @@ public:
 
 private:
     /**
+     * Common initialization logic across initial and reload scenarios
+     */
+    bool initialize(const std::map<std::string, std::string>& options);
+
+    /**
      * Loads the given path and stores valid credentials listed in it, in memory
      * @param filePath The path to the file containing the credentials
      * @return A vector of valid credentials, if the file was loaded successfully
