@@ -29,4 +29,4 @@ auth-plugin.so: $(OBJS)
 	$(CXX) $(CXXFLAGS) -shared -o $@ $(OBJS) $(LDFLAGS)
 
 clean :
-	rm -f *.o *.so
+	find . -type f \( -name '*.o' -o -name '*.so' \) -delete
