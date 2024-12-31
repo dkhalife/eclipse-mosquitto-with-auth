@@ -15,18 +15,6 @@ BE_Http::BE_Http(const std::map<std::string, std::string>& options)
 
     setupBaseUri(options);
     setupSubpaths(options);
-
-    initCurl();
-}
-
-BE_Http::~BE_Http()
-{
-    if (m_curl)
-    {
-        curl_easy_cleanup(m_curl);
-    }
-
-    curl_global_cleanup();
 }
 
 void BE_Http::setupBaseUri(const std::map<std::string, std::string>& options) noexcept
@@ -78,53 +66,54 @@ void BE_Http::setupSubpaths(const std::map<std::string, std::string>& options) n
     }
 }
 
-void BE_Http::initCurl() noexcept
-{
-    curl_global_init(CURL_GLOBAL_ALL);
-    m_curl = curl_easy_init();
-
-    m_headers = curl_slist_append(m_headers, "Content-Type: application/json");
-}
-
 bool BE_Http::authenticate(const std::string& username, const std::string& password, const std::string& client_id)
 {
-    if (!m_curl)
+    CURL* curl = curl_easy_init();
+
+    if (!curl)
     {
         mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: curl was not initialized");
         return false;
     }
 
+    curl_global_init(CURL_GLOBAL_ALL);
+
     std::ostringstream url;
     url << m_base_uri << m_auth_path;
 
-	char* escaped_username = curl_easy_escape(m_curl, username.c_str(), 0);
-	char* escaped_password = curl_easy_escape(m_curl, password.c_str(), 0);
-	char* escaped_clientid = curl_easy_escape(m_curl, client_id.c_str(), 0);
-
     std::ostringstream data;
-    data << "username=" << escaped_username << "&password=" << escaped_password << "&clientid=" << escaped_clientid;
+    data << "{\"username\":\"" << username << "\",\"password\":\"" << password << "\",\"clientid\":\"" << client_id << "\"}";
+    std::string json = data.str();
 
-    curl_easy_setopt(m_curl, CURLOPT_URL, url.str().c_str());
-	curl_easy_setopt(m_curl, CURLOPT_POST, 1L);
-	curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, data.str().c_str());
-    curl_easy_setopt(m_curl, CURLOPT_HTTPHEADER, m_headers);
-	curl_easy_setopt(m_curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-	curl_easy_setopt(m_curl, CURLOPT_USERNAME, username.c_str());
-	curl_easy_setopt(m_curl, CURLOPT_PASSWORD, password.c_str());
-	curl_easy_setopt(m_curl, CURLOPT_TIMEOUT, 5);
+    curl_slist* headers = curl_slist_append(NULL, "Content-Type: application/json");
+    curl_easy_setopt(curl, CURLOPT_URL, url.str().c_str());
+	curl_easy_setopt(curl, CURLOPT_POST, 1L);
+	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json.c_str());
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+	curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+	curl_easy_setopt(curl, CURLOPT_USERNAME, username.c_str());
+	curl_easy_setopt(curl, CURLOPT_PASSWORD, password.c_str());
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);
 
-    CURLcode res = curl_easy_perform(m_curl);
+    CURLcode res = curl_easy_perform(curl);
+    long response_code = 500;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
 
-	free(escaped_username);
-	free(escaped_password);
-	free(escaped_clientid);
+    if (curl)
+    {
+        curl_easy_cleanup(curl);
+    }
+
+    curl_global_cleanup();
 
     if(res == CURLE_OK)
     {
-        long response_code = 500;
-        curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &response_code);
+        mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: response code = %ld", response_code);
+
         return response_code == 200;
     }
+
+    mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: curl_easy_perform() failed: %s", curl_easy_strerror(res));
 
     return false;
 }
