@@ -1,0 +1,42 @@
+name: Build Image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Login to GitHub registry
+      run: |
+        docker login --username dkhalife --password ${{ secrets.GH_PAT }} ghcr.io
+
+    - name: Pre-build image and run build in dev container
+      uses: devcontainers/ci@v0.3
+      with:
+        imageName: ghcr.io/dkhalife/eclipse-mosquitto-with-auth
+        cacheFrom: ghcr.io/dkhalife/eclipse-mosquitto-with-auth
+        push: always
+        runCmd: |
+            cd src
+            make clean
+            make
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+   
+    - name: Build and push Docker image
+      run: |
+        cd docker;
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/eclipse-mosquitto-with-auth:latest .
+        docker push ${{ secrets.DOCKER_USERNAME }}/eclipse-mosquitto-with-auth:latest
