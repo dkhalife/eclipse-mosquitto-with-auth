@@ -13,9 +13,12 @@ jobs:
       packages: write
     steps:
     - uses: actions/checkout@v4
-    - name: Login to registry
-      run: |
-        docker login --username dkhalife --password ${{ secrets.GH_PAT }} ghcr.io
+    - name: Log in to GitHub registry
+      uses: docker/login-action@v2
+      with:
+        username: dkhalife
+        password: ${{ secrets.GITHUB_TOKEN }}
+        registry: ghcr.io
     - name: Pre-build image and run build in dev container
       uses: devcontainers/ci@v0.3
       with:
