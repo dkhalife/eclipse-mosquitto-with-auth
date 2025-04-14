@@ -14,30 +14,33 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Log in to GitHub registry
-      uses: docker/login-action@v2
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
       with:
-        username: dkhalife
-        password: ${{ secrets.GITHUB_TOKEN }}
-        registry: ghcr.io
+        platforms: all
 
-    - name: Pre-build image and run build in dev container
-      uses: devcontainers/ci@v0.3
-      with:
-        imageName: ghcr.io/dkhalife/eclipse-mosquitto-with-auth
-        cacheFrom: ghcr.io/dkhalife/eclipse-mosquitto-with-auth
-        push: always
-        runCmd: |
-            cd src
-            make clean
-            make
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build auth-plugin.so on Alpine
+      run: |
+        docker run --rm -v $(pwd):/workspace -w /workspace/src alpine:latest sh -c "\
+          apk add --no-cache \
+            g++ \
+            make \
+            cmake \
+            clang \
+            mariadb-dev \
+            mosquitto-dev \
+            sqlite-dev \&& \
+          make"
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-   
+
     - name: Build and push Docker image
       run: |
         cd docker;
