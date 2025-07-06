@@ -7,6 +7,7 @@
 #include <string>
 
 constexpr const char* c_file_opt_key = "creds_file";
+constexpr const char* c_debug_auth_key = "debug_auth";
 
 BE_File::BE_File(const std::map<std::string, std::string>& options)
 {
@@ -24,6 +25,8 @@ bool BE_File::initialize(const std::map<std::string, std::string>& options)
         mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: required config `%s` is missing", c_file_opt_key);
         return false;
     }
+
+    m_debug_auth = (options.count(c_debug_auth_key) != 0 && options.at(c_debug_auth_key) == "true");
 
     const std::string& credentialsFilePath = options.at(c_file_opt_key);
     auto credentials = loadFile(credentialsFilePath);
@@ -77,6 +80,14 @@ bool BE_File::authenticate(const std::string& username, const std::string& passw
 {
     SHA256 hasher;
     std::string input_hash = hasher(password);
+
+    if (m_debug_auth)
+    {
+        mosquitto_log_printf(MOSQ_LOG_DEBUG,
+                             "*** auth-plugin: username=%s password=%s",
+                             username.c_str(), input_hash.c_str());
+    }
+
     for (const auto& item: m_credentials)
     {
         if (item.first == username && item.second == input_hash)

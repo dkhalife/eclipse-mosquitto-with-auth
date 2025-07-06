@@ -65,4 +65,6 @@ private:
 
     using Credentials = std::pair<std::string, std::string>;
     std::vector<Credentials> m_credentials;
+
+    bool m_debug_auth {false};
 };
