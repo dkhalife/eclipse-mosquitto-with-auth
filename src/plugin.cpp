@@ -58,19 +58,19 @@ void Plugin::registerEvents() noexcept
     int hr = mosquitto_callback_register(m_identifier, MOSQ_EVT_RELOAD, Plugin::onEvent, nullptr, this);
     if (hr != MOSQ_ERR_SUCCESS)
     {
-        mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: unable to register for reload events, hr = %s", hr);
+        mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: unable to register for reload events, hr = %d", hr);
     }
 
     hr = mosquitto_callback_register(m_identifier, MOSQ_EVT_BASIC_AUTH, Plugin::onEvent, nullptr, this);
     if (hr != MOSQ_ERR_SUCCESS)
     {
-        mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: unable to register for basic auth events, hr = %s", hr);
+        mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: unable to register for basic auth events, hr = %d", hr);
     }
 
     hr = mosquitto_callback_register(m_identifier, MOSQ_EVT_ACL_CHECK, Plugin::onEvent, nullptr, this);
     if (hr != MOSQ_ERR_SUCCESS)
     {
-        mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: unable to register for ACL check events, hr = %s", hr);
+        mosquitto_log_printf(MOSQ_LOG_ERR, "*** auth-plugin: unable to register for ACL check events, hr = %d", hr);
     }
 }
 
