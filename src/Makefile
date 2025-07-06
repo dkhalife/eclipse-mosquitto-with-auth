@@ -19,7 +19,7 @@ all: auth-plugin.so
 backends/backend.o: backends/backend.cpp
 backends/http/be_http.o: backends/http/be_http.cpp
 backends/mysql/be_mysql.o: backends/mysql/be_mysql.cpp
-backends/sqlite/be_file.o: backends/sqlite/be_file.cpp
+backends/file/be_file.o: backends/file/be_file.cpp
 backends/sqlite/be_sqlite.o: backends/sqlite/be_sqlite.cpp
 mosquitto-plugin-main.o: mosquitto-plugin-main.cpp
 plugin.o: plugin.cpp
