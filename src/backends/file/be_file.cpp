@@ -26,7 +26,8 @@ bool BE_File::initialize(const std::map<std::string, std::string>& options)
         return false;
     }
 
-    m_debug_auth = (options.count(c_debug_auth_key) != 0 && options.at(c_debug_auth_key) == "true");
+    auto it = options.find(c_debug_auth_key);
+    m_debug_auth = (it != options.end() && it->second == "true");
 
     const std::string& credentialsFilePath = options.at(c_file_opt_key);
     auto credentials = loadFile(credentialsFilePath);
