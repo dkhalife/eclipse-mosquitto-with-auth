@@ -104,6 +104,8 @@ bool BE_Http::authenticate(const std::string& username, const std::string& passw
         curl_easy_cleanup(curl);
     }
 
+    curl_slist_free_all(headers);
+
     curl_global_cleanup();
 
     if(res == CURLE_OK)
