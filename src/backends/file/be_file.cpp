@@ -54,14 +54,14 @@ std::optional<std::vector<std::pair<std::string, std::string>>> BE_File::loadFil
 
     auto file = std::ifstream(filePath);
     std::string line;
-    int lineNb = 1;
+    size_t lineNb = 1;
     while (getline(file, line))
     {
         int iSep = line.find_last_of("::");
         if (iSep == std::string::npos)
         {
             mosquitto_log_printf(MOSQ_LOG_WARNING,
-                                 "*** auth-plugin: line %i is malformed, skipping it",
+                                 "*** auth-plugin: line %zu is malformed, skipping it",
                                  lineNb);
             ++lineNb;
             continue;
@@ -71,18 +71,21 @@ std::optional<std::vector<std::pair<std::string, std::string>>> BE_File::loadFil
         size_t remaining = line.size() - username.size() - 3U; // 2 chars for the separator and 1 for end of line
         std::string password = line.substr(iSep + 1, remaining);
 
-        mosquitto_log_printf(MOSQ_LOG_DEBUG,
-                             "*** auth-plugin: credential[%i] username=%s password=%s",
-                             lineNb,
-                             username.c_str(),
-                             password.c_str());
+        if (m_debug_auth)
+        {
+            mosquitto_log_printf(MOSQ_LOG_DEBUG,
+                                 "*** auth-plugin: credential[%zu] username=%s password=%s",
+                                 lineNb,
+                                 username.c_str(),
+                                 password.c_str());
+        }
 
         credentials.emplace_back(make_pair(std::move(username), std::move(password)));
 
         ++lineNb;
     }
 
-    mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: loaded %i credentials from `%s`", credentials.size(), filePath.c_str());
+    mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: loaded %zu credentials from `%s`", credentials.size(), filePath.c_str());
 
     return credentials;
 }
@@ -103,10 +106,22 @@ bool BE_File::authenticate(const std::string& username, const std::string& passw
     {
         if (item.first == username && item.second == input_hash)
         {
+            if (m_debug_auth)
+            {
+                mosquitto_log_printf(MOSQ_LOG_DEBUG,
+                                     "*** auth-plugin: authentication succeeded for '%s'",
+                                     username.c_str());
+            }
             return true;
         }
     }
 
+    if (m_debug_auth)
+    {
+        mosquitto_log_printf(MOSQ_LOG_DEBUG,
+                             "*** auth-plugin: authentication failed for '%s'",
+                             username.c_str());
+    }
     return false;
 }
 
