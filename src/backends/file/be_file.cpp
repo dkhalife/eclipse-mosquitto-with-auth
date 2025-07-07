@@ -68,7 +68,7 @@ std::optional<std::vector<std::pair<std::string, std::string>>> BE_File::loadFil
         }
 
         std::string username = line.substr(0, iSep - 1); // -1 brings us back to the beginning of the separator
-        size_t remaining = line.size() - username.size() - 3U; // 2 chars for the separator and 1 for end of line
+        size_t remaining = line.size() - username.size() - 2U; // 2 chars for the separator
         std::string password = line.substr(iSep + 1, remaining);
 
         if (m_debug_auth)
