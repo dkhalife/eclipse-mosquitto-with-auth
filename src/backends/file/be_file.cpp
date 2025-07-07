@@ -60,13 +60,23 @@ std::optional<std::vector<std::pair<std::string, std::string>>> BE_File::loadFil
         int iSep = line.find_last_of("::");
         if (iSep == std::string::npos)
         {
-            mosquitto_log_printf(MOSQ_LOG_WARNING, "*** auth-plugin: line %i is malformed, skipping it", lineNb);
+            mosquitto_log_printf(MOSQ_LOG_WARNING,
+                                 "*** auth-plugin: line %i is malformed, skipping it",
+                                 lineNb);
+            ++lineNb;
             continue;
         }
 
         std::string username = line.substr(0, iSep - 1); // -1 brings us back to the beginning of the separator
         size_t remaining = line.size() - username.size() - 3U; // 2 chars for the separator and 1 for end of line
         std::string password = line.substr(iSep + 1, remaining);
+
+        mosquitto_log_printf(MOSQ_LOG_DEBUG,
+                             "*** auth-plugin: credential[%i] username=%s password=%s",
+                             lineNb,
+                             username.c_str(),
+                             password.c_str());
+
         credentials.emplace_back(make_pair(std::move(username), std::move(password)));
 
         ++lineNb;
