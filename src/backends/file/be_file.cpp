@@ -71,11 +71,14 @@ std::optional<std::vector<std::pair<std::string, std::string>>> BE_File::loadFil
         size_t remaining = line.size() - username.size() - 3U; // 2 chars for the separator and 1 for end of line
         std::string password = line.substr(iSep + 1, remaining);
 
-        mosquitto_log_printf(MOSQ_LOG_DEBUG,
-                             "*** auth-plugin: credential[%i] username=%s password=%s",
-                             lineNb,
-                             username.c_str(),
-                             password.c_str());
+        if (m_debug_auth)
+        {
+            mosquitto_log_printf(MOSQ_LOG_DEBUG,
+                                 "*** auth-plugin: credential[%i] username=%s password=%s",
+                                 lineNb,
+                                 username.c_str(),
+                                 password.c_str());
+        }
 
         credentials.emplace_back(make_pair(std::move(username), std::move(password)));
 
@@ -103,10 +106,16 @@ bool BE_File::authenticate(const std::string& username, const std::string& passw
     {
         if (item.first == username && item.second == input_hash)
         {
+            mosquitto_log_printf(MOSQ_LOG_DEBUG,
+                                 "*** auth-plugin: authentication succeeded for '%s'",
+                                 username.c_str());
             return true;
         }
     }
 
+    mosquitto_log_printf(MOSQ_LOG_DEBUG,
+                         "*** auth-plugin: authentication failed for '%s'",
+                         username.c_str());
     return false;
 }
 
