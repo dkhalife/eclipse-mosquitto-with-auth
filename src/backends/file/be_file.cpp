@@ -54,14 +54,14 @@ std::optional<std::vector<std::pair<std::string, std::string>>> BE_File::loadFil
 
     auto file = std::ifstream(filePath);
     std::string line;
-    int lineNb = 1;
+    size_t lineNb = 1;
     while (getline(file, line))
     {
         int iSep = line.find_last_of("::");
         if (iSep == std::string::npos)
         {
             mosquitto_log_printf(MOSQ_LOG_WARNING,
-                                 "*** auth-plugin: line %i is malformed, skipping it",
+                                 "*** auth-plugin: line %zu is malformed, skipping it",
                                  lineNb);
             ++lineNb;
             continue;
@@ -74,7 +74,7 @@ std::optional<std::vector<std::pair<std::string, std::string>>> BE_File::loadFil
         if (m_debug_auth)
         {
             mosquitto_log_printf(MOSQ_LOG_DEBUG,
-                                 "*** auth-plugin: credential[%i] username=%s password=%s",
+                                 "*** auth-plugin: credential[%zu] username=%s password=%s",
                                  lineNb,
                                  username.c_str(),
                                  password.c_str());
@@ -85,7 +85,7 @@ std::optional<std::vector<std::pair<std::string, std::string>>> BE_File::loadFil
         ++lineNb;
     }
 
-    mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: loaded %i credentials from `%s`", credentials.size(), filePath.c_str());
+    mosquitto_log_printf(MOSQ_LOG_INFO, "*** auth-plugin: loaded %zu credentials from `%s`", credentials.size(), filePath.c_str());
 
     return credentials;
 }
