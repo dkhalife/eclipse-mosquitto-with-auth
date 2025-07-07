@@ -106,16 +106,22 @@ bool BE_File::authenticate(const std::string& username, const std::string& passw
     {
         if (item.first == username && item.second == input_hash)
         {
-            mosquitto_log_printf(MOSQ_LOG_DEBUG,
-                                 "*** auth-plugin: authentication succeeded for '%s'",
-                                 username.c_str());
+            if (m_debug_auth)
+            {
+                mosquitto_log_printf(MOSQ_LOG_DEBUG,
+                                     "*** auth-plugin: authentication succeeded for '%s'",
+                                     username.c_str());
+            }
             return true;
         }
     }
 
-    mosquitto_log_printf(MOSQ_LOG_DEBUG,
-                         "*** auth-plugin: authentication failed for '%s'",
-                         username.c_str());
+    if (m_debug_auth)
+    {
+        mosquitto_log_printf(MOSQ_LOG_DEBUG,
+                             "*** auth-plugin: authentication failed for '%s'",
+                             username.c_str());
+    }
     return false;
 }
 
