@@ -17,6 +17,7 @@ public:
      * @param options The relevant `mosquitto_opt` from the broker's config file
      */
     BE_Http(const std::map<std::string, std::string>& options);
+    ~BE_Http();
 
     /**
      * Verifies a client credentials against the Http store

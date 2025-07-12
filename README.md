@@ -55,6 +55,9 @@ plugin_opt_http_acl_path /acl
 
 The credentials file used by the file backend must contain entries of the form `username::sha256(password)` on separate lines. The HTTP backend sends JSON requests to the configured endpoints.
 
+The HTTP backend initializes libcurl when it is loaded and cleans up the
+library on shutdown, so HTTP requests incur no extra initialization overhead.
+
 ## 💻 Devcontainer & Codespaces
 
 The repository includes a `.devcontainer` folder so you can open it in Visual Studio Code or GitHub Codespaces and get a fully configured environment automatically.
