@@ -13,15 +13,28 @@ BE_Http::BE_Http(const std::map<std::string, std::string>& options)
 {
     mosquitto_log_printf(MOSQ_LOG_DEBUG, "*** auth-plugin: backend %s initializing", BE_Http::kind);
 
-    curl_global_init(CURL_GLOBAL_DEFAULT);
+    CURLcode init_code = curl_global_init(CURL_GLOBAL_DEFAULT);
+    if (init_code != CURLE_OK)
+    {
+        mosquitto_log_printf(MOSQ_LOG_ERR,
+                             "*** auth-plugin: curl_global_init failed: %s",
+                             curl_easy_strerror(init_code));
+    }
+    else
+    {
+        m_curl_initialized = true;
+    }
 
     setupBaseUri(options);
     setupSubpaths(options);
 }
 
-BE_Http::~BE_Http()
+BE_Http::~BE_Http() noexcept
 {
-    curl_global_cleanup();
+    if (m_curl_initialized)
+    {
+        curl_global_cleanup();
+    }
 }
 
 void BE_Http::setupBaseUri(const std::map<std::string, std::string>& options) noexcept
