@@ -17,6 +17,7 @@ public:
      * @param options The relevant `mosquitto_opt` from the broker's config file
      */
     BE_Http(const std::map<std::string, std::string>& options);
+    ~BE_Http() noexcept;
 
     /**
      * Verifies a client credentials against the Http store
@@ -52,6 +53,7 @@ private:
     void setupBaseUri(const std::map<std::string, std::string>& options) noexcept;
     void setupSubpaths(const std::map<std::string, std::string>& options) noexcept;
 
+    bool m_curl_initialized = false;
     std::string m_base_uri;
     std::string m_auth_path = "/auth";
     std::string m_acl_path = "/acl";
