@@ -11,7 +11,7 @@ Currently a file based backend and an HTTP backend are implemented. MySQL and SQ
 The project uses `clang` and requires Mosquitto development headers. On Alpine based systems the following packages are needed:
 
 ```
-apk add clang clang-extra-tools mosquitto-dev mariadb-dev sqlite-dev curl
+apk add clang clang-extra-tools mosquitto-dev mariadb-dev sqlite-dev curl argon2-dev
 ```
 
 To compile the plugin run:
@@ -53,7 +53,19 @@ plugin_opt_http_auth_path /auth
 plugin_opt_http_acl_path /acl
 ```
 
-The credentials file used by the file backend must contain entries of the form `username::sha256(password)` on separate lines. The HTTP backend sends JSON requests to the configured endpoints.
+The credentials file used by the file backend must contain entries of the form `username::<argon2id-hash>` on separate lines. You can generate a hash using the `argon2` utility, e.g.:
+
+```sh
+echo -n 'password' | argon2 somesalt -id -t 2 -m 16 -p 1 -e
+```
+
+The HTTP backend sends JSON requests to the configured endpoints.
+
+### Migrating existing credentials
+
+Older versions of the plugin used plain SHA-256 hashes. Regenerate each password
+with the `argon2` utility and replace the stored value in `creds.txt` with the
+new Argon2id hash.
 
 ## 💻 Devcontainer & Codespaces
 

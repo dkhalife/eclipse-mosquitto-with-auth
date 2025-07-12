@@ -90,29 +90,35 @@ std::optional<std::vector<std::pair<std::string, std::string>>> BE_File::loadFil
     return credentials;
 }
 
-bool BE_File::authenticate(const std::string& username, const std::string& password, const std::string& /*client_id*/)
+bool BE_File::authenticate(const std::string& username,
+                           const std::string& password,
+                           const std::string& /*client_id*/)
 {
-    SHA256 hasher;
-    std::string input_hash = hasher(password);
-
     if (m_debug_auth)
     {
         mosquitto_log_printf(MOSQ_LOG_DEBUG,
-                             "*** auth-plugin: username=%s password=%s",
-                             username.c_str(), input_hash.c_str());
+                             "*** auth-plugin: username=%s",
+                             username.c_str());
     }
 
     for (const auto& item: m_credentials)
     {
-        if (item.first == username && item.second == input_hash)
+        if (item.first == username)
         {
-            if (m_debug_auth)
+            int ret = argon2id_verify(item.second.c_str(),
+                                      password.c_str(),
+                                      password.size());
+            if (ret == ARGON2_OK)
             {
-                mosquitto_log_printf(MOSQ_LOG_DEBUG,
-                                     "*** auth-plugin: authentication succeeded for '%s'",
-                                     username.c_str());
+                if (m_debug_auth)
+                {
+                    mosquitto_log_printf(MOSQ_LOG_DEBUG,
+                                         "*** auth-plugin: authentication succeeded for '%s'",
+                                         username.c_str());
+                }
+                return true;
             }
-            return true;
+            break;
         }
     }
 

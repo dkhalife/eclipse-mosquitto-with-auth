@@ -2,7 +2,7 @@ CC = /usr/bin/clang
 CXX = /usr/bin/clang++
 
 CXXFLAGS = -fPIC --std=c++23
-LDFLAGS = -static-libstdc++ -static-libgcc -lcurl
+LDFLAGS = -static-libstdc++ -static-libgcc -lcurl -largon2
 
 OBJS = \
 	./backends/backend.o \
@@ -11,8 +11,7 @@ OBJS = \
 	./backends/mysql/be_mysql.o \
 	./backends/sqlite/be_sqlite.o \
 	./mosquitto-plugin-main.o \
-	./plugin.o \
-	./utils/sha256.o \
+        ./plugin.o \
 
 all: auth-plugin.so
 
@@ -23,7 +22,6 @@ backends/file/be_file.o: backends/file/be_file.cpp
 backends/sqlite/be_sqlite.o: backends/sqlite/be_sqlite.cpp
 mosquitto-plugin-main.o: mosquitto-plugin-main.cpp
 plugin.o: plugin.cpp
-utils/sha256.o: utils/sha256.cpp
 
 auth-plugin.so: $(OBJS)
 	$(CXX) $(CXXFLAGS) -shared -o $@ $(OBJS) $(LDFLAGS)

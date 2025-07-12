@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../backend.h"
-#include "../../utils/sha256.h"
+#include <argon2.h>
+#include <string>
 
 #include <optional>
 #include <vector>
